@@ -23,15 +23,13 @@ class Devise::Mailer < ::ActionMailer::Base
       @devise_mapping = Devise.mappings[@scope_name]
       @resource       = instance_variable_set("@#{@devise_mapping.name}", record)
 
-      template_path = ["devise/mailer"]
-      template_path.unshift "#{@devise_mapping.plural}/mailer" if self.class.scoped_views?
-
       headers = {
         :subject => translate(@devise_mapping, action),
         :from => mailer_sender(@devise_mapping),
-        :to => record.email,
-        :template_path => template_path
+        :to => record.email
       }
+
+      headers.merge!(:template_path => "#{@devise_mapping.as}/mailer") if self.class.scoped_views?
 
       headers.merge!(record.headers_for(action)) if record.respond_to?(:headers_for)
       mail(headers)
